@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { columns } from "./components/columns"
 import { DataTable } from "./components/data-table"
-import { getData } from "./data/payments"
+
 import { useUsersList } from "./hooks/useUser";
 import { SiteHeader } from "@/components/site-header";
 
