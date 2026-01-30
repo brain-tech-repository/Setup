@@ -67,7 +67,7 @@ export function DataTable<TData, TValue>({
 
   return (
     <>
-   
+  <div className=" gy-1"> {header}</div>
     <div className="flex flex-1 flex-col">
    
       <div className="flex items-center py-4">

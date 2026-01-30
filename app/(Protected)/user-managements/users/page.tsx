@@ -1,35 +1,36 @@
-"use client"
-import { useState } from "react";
-import { columns } from "./components/columns"
-import { DataTable } from "./components/data-table"
+"use client";
 
+import { useState } from "react";
+import { columns } from "./components/columns";
+import { DataTable } from "./components/data-table";
 import { useUsersList } from "./hooks/useUser";
 import { SiteHeader } from "@/components/site-header";
 
+export default function UsersPage() {
+  const [pagination] = useState({
+    pageIndex: 0,
+    pageSize: 10,
+  });
 
-
-
-export default  function DemoPage() {
-  //const data = await getData()
-
-  const [pagination, setPagination] = useState({
-		pageIndex: 0,
-		pageSize: 10, // match API per_page
-	});
-  	const {
-		data: response,
-		refetch,
-		isFetching,
-	} = useUsersList(pagination.pageIndex + 1, pagination.pageSize);
-	console.log(response, "bjhbvrhg rh");
+  const { data: response } = useUsersList(
+    pagination.pageIndex + 1,
+    pagination.pageSize
+  );
 
   return (
-    <div className="container mx-auto py-10">
+    <div className="container mx-auto pb-10 p-1">
       <DataTable
-     header={<SiteHeader />}
+        header={
+          <SiteHeader
+            title="Users"
+            actionLabel="Create"
+           actionHref={`/user-managements/users/form?mode=create&backHref=/user-managements`}
+
+          />
+        }
         columns={columns}
-      data={response?.data ?? []}
+        data={response?.data ?? []}
       />
     </div>
-  )
+  );
 }
