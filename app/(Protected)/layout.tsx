@@ -10,9 +10,6 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar"
 import { ChevronsUpDown } from "lucide-react"
-
-
-
 export default function Page({
   children,
 }: {
@@ -27,7 +24,7 @@ export default function Page({
         } as React.CSSProperties
       }
     >
-      <AppSidebar variant="inset" />
+      <AppSidebar  />
        <div className="flex justify-end pt-3">
          <div className="flex justify-end pt-3">
       <SidebarTrigger className=" h-8" />

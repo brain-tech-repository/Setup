@@ -1,68 +1,63 @@
-// import axios from "axios";
-// import https from "https";
-
-// console.log("API BASE URL:", process.env.NEXT_PUBLIC_API_BASE_URL);
-// const api = axios.create({
-//   baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
-//   headers: {
-//     "Content-Type": "application/json",
-//   },
-
-// });
-// export default api;
-
-
-
 import axios from "axios";
-
 import { getCookie, removeCookie } from "./cookieUtils";
 
-/* ================= AXIOS INSTANCE ================= */
+/* ===========================
+   AXIOS INSTANCE
+=========================== */
+
 const api = axios.create({
- baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // 🔹 backend base URL
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // e.g. http://localhost:300/api
   headers: {
     "Content-Type": "application/json",
   },
-  // withCredentials: true, // 🔥 enable only if backend uses httpOnly cookies
+ 
 });
 
-/* ================= REQUEST INTERCEPTOR ================= */
+/* ===========================
+   REQUEST INTERCEPTOR
+=========================== */
+
 api.interceptors.request.use(
   (config) => {
-    // ✅ run only in browser (Next.js safe)
+    // ✅ Next.js safe
     if (typeof window !== "undefined") {
       const token = getCookie<string>("token");
 
-      // 🔐 attach token automatically
-      if (token) {
+      if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
       }
     }
+
     return config;
   },
-  (error) => Promise.reject(error),
+  (error) => Promise.reject(error)
 );
 
-/* ================= RESPONSE INTERCEPTOR ================= */
+/* ===========================
+   RESPONSE INTERCEPTOR
+=========================== */
+
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    // 🔴 token expired / invalid
-    if (error.response?.status === 401) {
-      if (typeof window !== "undefined") {
-        // 🧹 clear auth data
-        removeCookie("token", { path: "/" });
-        localStorage.removeItem("user_auth_data");
 
-        // 🚫 prevent redirect loop
-        if (window.location.pathname !== "/") {
-          window.location.href = "/";
-        }
+  (error) => {
+    const status = error?.response?.status;
+
+    // 🔴 Unauthorized / Token expired
+    if (status === 401 && typeof window !== "undefined") {
+      // 🧹 Clear auth
+      removeCookie("token", { path: "/" });
+      localStorage.removeItem("user");
+
+      // 🚫 Avoid infinite redirect loop
+      const publicRoutes = ["/", "/login"];
+      if (!publicRoutes.includes(window.location.pathname)) {
+        window.location.replace("/");
       }
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;
