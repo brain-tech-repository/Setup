@@ -13,11 +13,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Checkbox } from "@/components/ui/checkbox"
-import { DataTableColumnHeader } from "./data-table-column-header"
-import { UserType } from "../types"
 
-export const columns: ColumnDef<UserType>[] = [
-  // ✅ Select checkbox
+import type { UserResponse } from "../types"
+
+import { useRouter } from "next/navigation";
+
+
+export const columns: ColumnDef<UserResponse>[] = [
+  /* ======================
+     SELECT CHECKBOX
+  ====================== */
   {
     id: "select",
     header: ({ table }) => (
@@ -26,7 +31,9 @@ export const columns: ColumnDef<UserType>[] = [
           table.getIsAllPageRowsSelected() ||
           (table.getIsSomePageRowsSelected() && "indeterminate")
         }
-        onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        onCheckedChange={(value) =>
+          table.toggleAllPageRowsSelected(!!value)
+        }
         aria-label="Select all"
       />
     ),
@@ -41,69 +48,61 @@ export const columns: ColumnDef<UserType>[] = [
     enableHiding: false,
   },
 
-  // ✅ User Code (sortable by ID)
+  /* ======================
+     USER ID
+  ====================== */
   {
-    accessorKey: "id",
-    header: ({ column }) => <DataTableColumnHeader column={column} title="User ID" />,
+    accessorKey: "_id",
+    header: () => <span>ID</span>,
+    cell: ({ row }) => (
+      <span className="text-xs font-mono">
+        {row.getValue("_id")}
+      </span>
+    ),
   },
 
-  // ✅ User Code
+  /* ======================
+     NAME
+  ====================== */
   {
-    accessorKey: "user_code",
-    header: () => <span>User Code</span>,
+    accessorKey: "name",
+    header: () => <span>Name</span>,
   },
 
-  // ✅ First Name
-  {
-    accessorKey: "first_name",
-    header: () => <span>First Name</span>,
-  },
-
-  // ✅ Last Name
-  {
-    accessorKey: "last_name",
-    header: () => <span>Last Name</span>,
-  },
-
-  // ✅ Email
+  /* ======================
+     EMAIL
+  ====================== */
   {
     accessorKey: "email",
     header: () => <span>Email</span>,
   },
 
-  // ✅ Role (nested object)
+  /* ======================
+     AGE
+  ====================== */
   {
-    accessorFn: (row) => row.role?.name || "-",
-    id: "role",
-    header: () => <span>Role</span>,
+    accessorKey: "age",
+    header: () => <span>Age</span>,
   },
 
-  // ✅ City (nested object)
+  /* ======================
+     CITY
+  ====================== */
   {
-    accessorFn: (row) => row.city?.city_name || "-",
-    id: "city",
+    accessorKey: "city",
     header: () => <span>City</span>,
   },
 
-  // ✅ Country (nested object)
-  {
-    accessorFn: (row) => row.country?.country_name || "-",
-    id: "country",
-    header: () => <span>Country</span>,
-  },
-
-  // ✅ Status
-  {
-    accessorKey: "status",
-    header: () => <span>Status</span>,
-  },
-
-  // ✅ Actions Dropdown
+  /* ======================
+     ACTIONS
+  ====================== */
   {
     id: "actions",
     header: "Actions",
     cell: ({ row }) => {
       const user = row.original
+        const router = useRouter();
+
       return (
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -112,14 +111,24 @@ export const columns: ColumnDef<UserType>[] = [
               <MoreHorizontal className="h-4 w-4" />
             </Button>
           </DropdownMenuTrigger>
+
           <DropdownMenuContent align="end">
             <DropdownMenuLabel>Actions</DropdownMenuLabel>
-            <DropdownMenuItem onClick={() => navigator.clipboard.writeText(String(user.id))}>
-              Copy User ID
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem>View Profile</DropdownMenuItem>
-            <DropdownMenuItem>Edit User</DropdownMenuItem>
+
+            <DropdownMenuItem>
+              View User
+            </DropdownMenuItem>
+
+           <DropdownMenuItem
+          onClick={() =>
+            router.push(
+              `/user-management/users/form?mode=edit&id=${user._id}`
+            )
+          }
+        >
+          Edit User
+        </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       )

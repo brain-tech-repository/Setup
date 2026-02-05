@@ -32,11 +32,16 @@ interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
   data: TData[]
    header?: ReactNode; 
+   isLoading?: boolean;
+  isError?: boolean;
+
 }
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
+  isError,
   header
 }: DataTableProps<TData, TValue>) {
 
@@ -112,7 +117,8 @@ export function DataTable<TData, TValue>({
 
       <div className="overflow-hidden rounded-md border ">
         {<Table>
-          <TableHeader>
+          <TableHeader className="sticky top-0 z-20 bg-gradient-to-r from-slate-100 via-gray-100 to-slate-100 dark:from-neutral-800 dark:via-neutral-850 dark:to-neutral-800">
+
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
                 {headerGroup.headers.map((header) => {
@@ -134,12 +140,27 @@ export function DataTable<TData, TValue>({
           <TableBody>
             {table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
-                <TableRow
-                  key={row.id}
-                  data-state={row.getIsSelected() && "selected"}
-                >
+              <TableRow
+  key={row.id}
+  data-state={row.getIsSelected() && "selected"}
+  className="
+    transition-all
+    hover:bg-gradient-to-r hover:from-blue-50 hover:via-transparent hover:to-blue-50
+    dark:hover:from-blue-950/40 dark:hover:to-blue-950/40
+    data-[state=selected]:bg-blue-100/60
+    dark:data-[state=selected]:bg-blue-950/50
+  "
+>
+
                   {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
+                  <TableCell
+  key={cell.id}
+  className="
+    border-r border-b border-gray-200 dark:border-neutral-700
+    text-sm text-gray-800 dark:text-gray-200
+  "
+>
+
                       {flexRender(cell.column.columnDef.cell, cell.getContext())}
                     </TableCell>
                   ))}
