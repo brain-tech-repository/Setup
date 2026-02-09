@@ -1,18 +1,19 @@
 "use client";
-
-
-import { DataTable } from "./components/data-table";
-
 import { SiteHeader } from "@/components/site-header";
-import { useUsersList } from "./hooks/useUser";
 import { columns } from "./components/columns";
+import { DataTable } from "../../../../components/data-table/data-table";
+import { useRolelist } from "./hooks/useRole";
+import { log } from "console";
 
 export default function UsersPage() {
   const {
     data: users = [],
     isLoading,
     isError,
-  } = useUsersList();
+  } = useRolelist();
+
+  console.log("usersss",users);
+  
 
   return (
     <div className="container mx-auto pb-10 p-1">

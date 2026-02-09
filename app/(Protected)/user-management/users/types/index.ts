@@ -15,3 +15,19 @@ export type UserResponse = UserType & {
   createdAt: string;
   updatedAt: string;
 };
+
+
+export type UserFormValues = {
+  name: string;
+  email: string;
+  password?: string;
+  age: number;
+  city: string;
+};
+
+export type UserFormUIProps = {
+  defaultValues: UserFormValues;
+  isEditMode: boolean;
+  isLoading?: boolean;
+  onSubmit: (values: UserFormValues) => void;
+};

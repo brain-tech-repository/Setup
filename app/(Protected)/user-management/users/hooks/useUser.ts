@@ -8,24 +8,11 @@ import {
 } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/apiClient";
+import { UserResponse, UserType } from "../types";
 
 /* =======================
    TYPES (match mongoose)
 ======================= */
-
-export interface UserType {
-	name: string;
-	email: string;
-	password?: string; // optional for update
-	age: number;
-	city: string;
-}
-
-export interface UserResponse extends UserType {
-	_id: string;
-	createdAt: string;
-	updatedAt: string;
-}
 
 /* =======================
    API FUNCTIONS
@@ -47,10 +34,7 @@ const userAPI = {
 		return res.data;
 	},
 
-	updateUser: async (
-		id: string,
-		payload: Partial<UserType>
-	): Promise<UserResponse> => {
+	updateUser: async (id: string,payload: Partial<UserType>): Promise<UserResponse> => {
 		const res = await api.put(`/users/${id}`, payload);
 		return res.data;
 	},

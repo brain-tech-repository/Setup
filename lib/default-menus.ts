@@ -39,7 +39,7 @@ export const DEFAULT_MENUS: MenuItem[] = [
       },
       {
         label: "Permissions",
-        href: "/user-management/permissions",
+        href: "/user-management/permission",
         icon: "ShieldCheck",
         permissions: FULL_PERMISSION,
       },

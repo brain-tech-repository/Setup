@@ -1,3 +1,4 @@
+"use client"
 import axios from "axios";
 import { getCookie, removeCookie } from "./cookieUtils";
 
@@ -6,11 +7,10 @@ import { getCookie, removeCookie } from "./cookieUtils";
 =========================== */
 
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL, // e.g. http://localhost:300/api
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL,
   headers: {
     "Content-Type": "application/json",
   },
- 
 });
 
 /* ===========================
@@ -19,7 +19,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    // ✅ Next.js safe
+    // ✅ SSR-safe
     if (typeof window !== "undefined") {
       const token = getCookie<string>("token");
 
@@ -41,15 +41,22 @@ api.interceptors.response.use(
   (response) => response,
 
   (error) => {
+    // ✅ HARD GUARD — MUST BE FIRST
+    if (typeof window === "undefined") {
+      return Promise.reject(error);
+    }
+
     const status = error?.response?.status;
 
-    // 🔴 Unauthorized / Token expired
-    if (status === 401 && typeof window !== "undefined") {
-      // 🧹 Clear auth
+    if (status === 401) {
+      // 🧹 Clear auth (browser only)
       removeCookie("token", { path: "/" });
-      localStorage.removeItem("user");
 
-      // 🚫 Avoid infinite redirect loop
+      if (typeof localStorage !== "undefined") {
+        localStorage.removeItem("user");
+      }
+
+      // 🚫 Prevent redirect loop
       const publicRoutes = ["/", "/login"];
       if (!publicRoutes.includes(window.location.pathname)) {
         window.location.replace("/");
