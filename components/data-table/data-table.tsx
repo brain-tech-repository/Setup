@@ -28,7 +28,7 @@ import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
 import { DataTablePagination } from "@/components/data-table/pagination"
 import { Settings2, Trash2 } from "lucide-react"
-import { useDeleteRole } from "@/app/(Protected)/user-management/permission/hooks/useRole"
+import { useDeleteRole } from "@/app/(Protected)/users/permission/hooks/useRole"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]

@@ -1,4 +1,5 @@
 "use client"
+
 import {
   Sidebar,
   SidebarContent,
@@ -13,24 +14,22 @@ import * as Collapsible from "@radix-ui/react-collapsible"
 import { ChevronDown } from "lucide-react"
 import Image from "next/image"
 import Link from "next/link"
-import { iconMap, type MenuItem } from "@/lib/icon-map"
-import { useRoleMenus } from "@/lib/get-menus"
-import { getLocal } from "@/lib/localStorageUtils"
-import { DEFAULT_MENUS } from "@/lib/default-menus"
+import { useEffect, useState } from "react"
+
+import { getIcon, type MenuItem } from "@/lib/menu/icon-map"
+import { useSidebarMenus } from "@/lib/menu/menu.service"
+
 export function AppSidebar() {
-  // 🔐 later this should come from auth/user profile
- const userAuthData = getLocal("user");
-	// const id = userAuthData ? userAuthData.user.id : null;
-    const userId = userAuthData?.user?.id ?? null;
 
-  const { data: menus, isLoading, isError } = useRoleMenus(userId)
+  // 🔥 Safely load user from localStorage (client only)
 
-    const menus1: MenuItem[] =
-    !isLoading && !isError && menus?.length
-      ? menus
-      : DEFAULT_MENUS;
-  
-  
+
+
+  // 🔥 Fetch sidebar menus by role
+   const { data: apiMenus, isLoading } = useSidebarMenus()
+
+
+  const menus: MenuItem[] = apiMenus ?? []
 
   if (isLoading) {
     return (
@@ -46,88 +45,70 @@ export function AppSidebar() {
     <Sidebar variant="inset" collapsible="icon">
       <SidebarContent>
 
-        {/* ================= LOGO / HEADER ================= */}
+        {/* LOGO */}
         <Link
           href="/dashboard"
           className="flex h-14 items-center gap-2 border-b px-4"
         >
-          {/* Logo Icon */}
           <Image
-            src="/logo.svg"          // 🔁 change if needed
+            src="/logo.svg"
             alt="CoreExl"
             width={28}
             height={28}
             className="shrink-0"
           />
-
-          {/* App Name (auto-hide on collapse) */}
           <span className="truncate text-sm font-semibold group-data-[collapsible=icon]:hidden">
             CoreExl
           </span>
         </Link>
 
-        {/* ================= MENU ================= */}
-        {menus1?.map((menu: MenuItem) => {
-          const ParentIcon = iconMap[menu.icon]
+        {/* MENU */}
+        {menus.map((menu: MenuItem) => {
+          const ParentIcon = getIcon(menu.icon)
+          const children = menu.children ?? []
+          const hasChildren = children.length > 0
 
           return (
-            <SidebarMenu key={menu.label}>
+            <SidebarMenu key={menu.slug}>
               <Collapsible.Root>
                 <SidebarMenuItem>
-
-                  {/* ===== Parent Menu (toggle) ===== */}
                   <Collapsible.Trigger asChild>
                     <SidebarMenuButton className="group justify-between">
                       <span className="flex items-center gap-2">
-                        {ParentIcon && <ParentIcon size={18} />}
-                        <span className="group-data-[collapsible=icon]:hidden">
-                          {menu.label}
-                        </span>
+                        <ParentIcon size={18} />
+                        <span>{menu.label}</span>
                       </span>
 
-                      {/* ✅ RIGHT ➡️ when closed | DOWN ⬇️ when open */}
-                      <ChevronDown
-                        className="
-        size-4 shrink-0
-        -rotate-90
-        transition-transform
-        group-data-[state=open]:rotate-0
-        group-data-[collapsible=icon]:hidden
-      "
-                      />
+                      {hasChildren && <ChevronDown />}
                     </SidebarMenuButton>
                   </Collapsible.Trigger>
 
+                  {hasChildren && (
+                    <Collapsible.Content>
+                      <SidebarMenuSub>
+                        {children.map(sub => {
+                          const ChildIcon = getIcon(sub.icon)
 
-                  {/* ===== Sub Menu ===== */}
-                  <Collapsible.Content>
-                    <SidebarMenuSub>
-                      {menu.children?.map((sub) => {
-                      if (!sub.permissions?.view) return null
-
-                        const ChildIcon = iconMap[sub.icon]
-
-                        return (
-                          <SidebarMenuSubItem key={sub.label}>
-                            <SidebarMenuButton asChild>
-                              <Link href={sub.href ?? "#"}>
-                                {ChildIcon && <ChildIcon size={16} />}
-                                <span className="group-data-[collapsible=icon]:hidden">
-                                  {sub.label}
-                                </span>
-                              </Link>
-                            </SidebarMenuButton>
-                          </SidebarMenuSubItem>
-                        )
-                      })}
-                    </SidebarMenuSub>
-                  </Collapsible.Content>
-
+                          return (  
+                            <SidebarMenuSubItem key={sub.slug}>
+                              <SidebarMenuButton asChild>
+                                <Link href={sub.href ?? "#"}>
+                                  <ChildIcon size={16} />
+                                  <span>{sub.label}</span>
+                                </Link>
+                              </SidebarMenuButton>
+                            </SidebarMenuSubItem>
+                          )
+                        })}
+                      </SidebarMenuSub>
+                    </Collapsible.Content>
+                  )}
                 </SidebarMenuItem>
               </Collapsible.Root>
             </SidebarMenu>
           )
         })}
+
       </SidebarContent>
     </Sidebar>
   )
